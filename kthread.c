@@ -1,7 +1,9 @@
 #include <pthread.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <limits.h>
+#include "utils.h"
 
 /************
  * kt_for() *
@@ -139,8 +141,10 @@ void kt_pipeline(int n_threads, void *(*func)(void*, int, void*), void *shared_d
 	}
 
 	tid = (pthread_t*)alloca(n_threads * sizeof(pthread_t));
+	double t_real = realtime();
 	for (i = 0; i < n_threads; ++i) pthread_create(&tid[i], 0, ktp_worker, &aux.workers[i]);
 	for (i = 0; i < n_threads; ++i) pthread_join(tid[i], 0);
+	fprintf(stderr, "\n[%s] wall time: %.3f sec; CPU: %.3f sec\n", __func__, (double)realtime() - t_real, cputime());
 
 	pthread_mutex_destroy(&aux.mutex);
 	pthread_cond_destroy(&aux.cv);
